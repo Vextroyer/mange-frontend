@@ -1,9 +1,22 @@
 "use client"
+import { useState } from "react";
+
 
 export default function AnalisisDeDatos(){
+	let idView = 0
+	const [views,setViews] = useState([])
+	
+	function handleNewItem(){
+		setViews([...views,idView])
+		idView++
+	}
+	
 	return (
 		<div className="flex flex-col m-4 h-screen flex-row">
-			<button onClick={QueryItem}>
+			 {views.map(viewID => (
+				<QueryItem key={viewID}/>
+				))}
+			<button onClick={handleNewItem}>
 				New
 			</button>
 		</div>
