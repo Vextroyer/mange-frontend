@@ -1,33 +1,54 @@
-import Link from 'next/link'
+'use client'
+import {useState} from 'react'
 
 export default function Home(){
+	const options = ["A","B","C"]
+	const [option,setOption] = useState("A")
+	
 	return (
-		<div className="flex m-4 h-screen flex-row text-black">
-			{/*Sidebar*/}
-			<div className="flex flex-col flex-auto basis-1/4 mx-4 bg-blue-100 gap-4">
-				<p className="m-4 basis-1/4 bg-red-300">Editar info de usuario</p>
-				<p className="m-4 basis-1/4 bg-red-300">Ajustes</p>
-				<p className="m-4 basis-2/4 bg-red-300">Notificaciones</p>
+		<div className="m-4 h-screen bg-gray-200 dark:bg-gray-900 shadow-gray-800 rounded-lg p-4">
+			<div>
+				<h1>Welcome User</h1>
 			</div>
 			
-			{/*Mainbar*/}
-			<div className="flex-auto flex flex-col basis-3/4 mx-4 bg-red-100">
-				
-				{/*Presentation*/}
-				<div className="flex-auto basis-3/4 m-4 bg-red-200">
-					<h1>Welcome User</h1>
-				</div>
-				
-				<div className="flex flex-row flex-auto basis-1/4 bg-red-200 m-4 gap-4">
-					<Link href="/analisis_de_datos">
-						<p className="basis-1/4 bg-red-300">Ver Datos</p>
-					</Link>
-					<p className="basis-1/4 bg-red-300">Registrar Consumo</p>
-					<p className="basis-1/4 bg-red-300">Gestionar Sucursales</p>
-					<p className="basis-1/4 bg-red-300">Hello World</p>
-				</div>
-				
+			<div className="h-5">
 			</div>
+			
+			<div className="flex flex-row gap-4">
+				
+				{/*Sidebar*/}
+				<div className="flex flex-col">
+					<div className="flex flex-col gap-4 dark:bg-gray-600 p-2 rounded-lg">
+						<p>Seleccionar Sucursal</p>
+						<select className="dark:bg-gray-500 rounded-sm p-2" value={option} onChange={e => setOption(e.target.value)}>
+							{options.map(option => (
+								<option value={option}>{option}</option>
+							))}
+						</select>
+					</div>
+				</div>
+				
+				{/*Mainbar*/}
+				<div className="flex-auto flex flex-col dark:bg-gray-600 rounded-lg p-2 gap-4">
+					<div className="flex flex-row gap-2">
+						<h1>
+							Sucursal {option}
+						</h1>
+						
+						<p>Limite</p>
+						<p>Formula de costo aqui</p>
+						<p>Por ciento Extra aqui</p>
+						<p>Aumento aqui</p>
+						<p>Direccion</p>
+						<p>Tipo</p>
+						
+					</div>
+					
+					<p>Detalles de consumo de los ultimos 3 meses</p>
+				</div>
+			</div>
+			
+			
 		</div>
 	)
 }
