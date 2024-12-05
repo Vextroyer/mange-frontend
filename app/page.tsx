@@ -17,8 +17,13 @@ export default function Home() {
               Voltman
             </h2>
           </div>
-          <p className="text-black dark:text-gray-200 line-clamp-3">
-            Descripcion del sistema,etc
+          <p className="text-black dark:text-gray-200 line-clamp-7">
+            Voltman es una solución integral diseñada para ayudarte a
+            monitorear, analizar y optimizar el consumo de energía en tu empresa
+            de manera eficiente y personalizada.
+             {/* Este sistema no solo centraliza
+            la información energética, sino que también ofrece herramientas
+            avanzadas para tomar decisiones informadas y reducir costos. */}
           </p>
         </div>
 
