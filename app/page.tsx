@@ -1,15 +1,10 @@
 import Image from "next/image";
-import { Container } from "postcss";
-import { Children } from "react";
 
 export default function Home() {
   return (
     <main className=" flex flex-col-reverse lg:flex-row bg-[url('http://localhost:3000/images/fondoClaro.png')] dark:bg-transparent bg-cover bg-no-repeat bg-center">
-      <div className=" w-full lg:w-1/2 flex items-center justify-center p-4 lg:h-screen flex-col sm:h-max dark:bg-black shadow-2xl overflow-hidden dark:border-zinc-800 bg-transparent" >
-
+      <div className=" w-full lg:w-1/2 flex items-center justify-center p-4 lg:h-screen flex-col sm:h-max dark:bg-black shadow-2xl overflow-hidden dark:border-zinc-800 bg-transparent">
         <div className="group flex flex-col justify-start items-start gap-2 w-96 h-56 duration-500 relative rounded-lg p-4 bg-gray-200 dark:bg-gray-900 hover:-translate-y-2 hover:shadow-xl shadow-gray-800">
-          {/* <div className="absolute duration-700 shadow-md group-hover:-translate-y-4 group-hover:-translate-x-4 -bottom-10 -right-10 w-1/2 h-1/2 rounded-lg bg-gray-800">
-          </div> */}
           <div className="flex">
             <Image
               src="/images/logo.png"
@@ -18,7 +13,9 @@ export default function Home() {
               height={30}
               className="object-contain object-center mr-1"
             />
-            <h2 className="text-2xl font-bold mb-2 text-black dark:text-gray-100">Voltman</h2>
+            <h2 className="text-2xl font-bold mb-2 text-black dark:text-gray-100">
+              Voltman
+            </h2>
           </div>
           <p className="text-black dark:text-gray-200 line-clamp-3">
             Descripcion del sistema,etc
@@ -44,7 +41,7 @@ export default function Home() {
           </li>
           <li>
             <a className="text-gray-200 hover:text-rose-600 dark:hover:text-white dark:text-gray-400">
-              <svg 
+              <svg
                 aria-hidden="true"
                 viewBox="0 0 24 24"
                 fill="currentColor"
