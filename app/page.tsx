@@ -1,15 +1,72 @@
+"use client"
 import Image from "next/image";
-import { Container } from "postcss";
-import { Children } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function Home() {
+
+  const router = useRouter();
+  const handleRedireccion = () => {
+    router.push("/home");
+  };
+  const [formularios, setFormularios] = useState([
+    { id: 1, fecha: "", consumo: "", sucursal: "" },
+  ]);
+
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    try {
+      const response = await fetch("http://localhost:5050/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formularios),
+      });
+
+      if (response.ok) {
+        alert("Datos enviados correctamente");
+        setFormularios([{ id: 1, fecha: "", consumo: "", sucursal: "" }]); // Reiniciar formularios
+      } else {
+        alert("Hubo un problema al enviar los datos");
+      }
+    } catch (error) {
+      console.error("Error al enviar los datos:", error);
+      alert("Error al conectar con el servidor");
+    }
+  };
+
+
+
+
+
+  const enviarDatos = async () => {
+    const data = {
+      name: 'John Doe',
+      email: 'johndoe@example.com',
+    };
+
+    try {
+      const res = await fetch('http://127.0.0.1:5050', {
+        method: 'POST',             // Método HTTP
+        headers: {
+          'Content-Type': 'application/json', // Especifica que envías un JSON
+        },
+        body: JSON.stringify(data), // Convierte el objeto a una cadena JSON
+      });
+      if (res.ok) { handleRedireccion }
+      else {
+        throw new Error(`Error: ${res.status}`);
+      }
+      const result = await res.json(); // Convierte la respuesta a JSON
+      new Response(result);
+    } catch (error) {
+      console.error('Error al enviar los datos:', error);
+    };
+  };
+
   return (
     <main className=" flex flex-col-reverse lg:flex-row bg-[url('http://localhost:3000/images/fondoClaro.png')] dark:bg-transparent bg-cover bg-no-repeat bg-center">
       <div className=" w-full lg:w-1/2 flex items-center justify-center p-4 lg:h-screen flex-col sm:h-max dark:bg-black shadow-2xl overflow-hidden dark:border-zinc-800 bg-transparent" >
-
         <div className="group flex flex-col justify-start items-start gap-2 w-96 h-56 duration-500 relative rounded-lg p-4 bg-gray-200 dark:bg-gray-900 hover:-translate-y-2 hover:shadow-xl shadow-gray-800">
-          {/* <div className="absolute duration-700 shadow-md group-hover:-translate-y-4 group-hover:-translate-x-4 -bottom-10 -right-10 w-1/2 h-1/2 rounded-lg bg-gray-800">
-          </div> */}
           <div className="flex">
             <Image
               src="/images/logo.png"
@@ -44,7 +101,7 @@ export default function Home() {
           </li>
           <li>
             <a className="text-gray-200 hover:text-rose-600 dark:hover:text-white dark:text-gray-400">
-              <svg 
+              <svg
                 aria-hidden="true"
                 viewBox="0 0 24 24"
                 fill="currentColor"
@@ -104,9 +161,10 @@ export default function Home() {
           </li>
         </ul>
       </div>
-
       <div className=" w-full lg:w-1/2 p-4  h-screen flex items-center justify-center bg-transparent dark:bg-[url('http://localhost:3000/images/login.png')] bg-cover bg-no-repeat bg-center ">
-        <form className="bg-slate-200 dark:bg-black shadow-2xl rounded-2xl overflow-hidden border-4 border-transparent dark:border-zinc-700">
+        <form
+          id="logForm"
+          className="bg-slate-200 dark:bg-black shadow-2xl rounded-2xl overflow-hidden border-4 border-transparent dark:border-zinc-700">
           <div className="flex ml-4 mt-4 mb-0 text-black">
             <Image
               src="/images/logo.png"
@@ -159,6 +217,7 @@ export default function Home() {
                 <button
                   className="w-full px-4 py-3 tracking-wide text-white transition-all duration-200 transform bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg hover:from-blue-700 hover:to-cyan-700 focus:outline-none focus:ring-4 focus:ring-blue-400 dark:focus:ring-blue-800 hover:scale-105"
                   type="submit"
+                  onClick={handleSubmit}
                 >
                   Login
                 </button>
