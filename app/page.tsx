@@ -9,22 +9,22 @@ export default function Home() {
   const handleRedireccion = () => {
     router.push("/home");
   };
-  const [formularios, setFormularios] = useState([
-    { id: 1, fecha: "", consumo: "", sucursal: "" },
-  ]);
+
+  // Hacer controlados los campos del formulario
+  const [name,setName] = useState("")
+  const [password,setPassword] = useState("")
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:5050/", {
+      const response = await fetch("http://localhost:5050/api/user/login/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formularios),
+        body: JSON.stringify({"name":name,"password":password}),
       });
-
+	  console.log(response)
       if (response.ok) {
         alert("Datos enviados correctamente");
-        setFormularios([{ id: 1, fecha: "", consumo: "", sucursal: "" }]); // Reiniciar formularios
       } else {
         alert("Hubo un problema al enviar los datos");
       }
@@ -186,16 +186,18 @@ export default function Home() {
               <div className="relative">
                 <label
                   className="block mb-3 text-sm font-medium text-black dark:text-zinc-200"
-                  form="email"
+                  form="name"
                 >
-                  Email
+                  Name
                 </label>
                 <input
-                  placeholder="you@example.com"
+				  value={name}
+				  onChange={e => setName(e.target.value)}
+                  placeholder="JhonDoe"
                   className="block w-full px-4 py-3 mt-2 text-zinc-800 bg-white border-2 rounded-lg dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-opacity-50 focus:outline-none focus:ring focus:ring-blue-400 border-zinc-500"
-                  name="email"
-                  id="email"
-                  type="email"
+                  name="name"
+                  id="name"
+                  type="text"
                 />
               </div>
               <div className="mt-6">
@@ -206,6 +208,8 @@ export default function Home() {
                   Password
                 </label>
                 <input
+				  value={password}
+				  onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••"
                   className="block w-full px-4 py-3 mt-2 text-zinc-800 bg-white border-2 rounded-lg dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-opacity-50 focus:outline-none focus:ring focus:ring-blue-400 border-zinc-500"
                   name="password"
