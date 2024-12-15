@@ -1,23 +1,25 @@
+/* eslint-disable react/jsx-no-undef */
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from "next/image";
 
 interface User {
   id: number;
-  nombre: string;
-  sucursal: string;
-  tipo: string;
-  contraseña: string;
+  Username: string;
+  Company: string;
+  Type: string;
+  Password: string;
 }
 
 export default function Page() {
 
   const [users, setUsers] = useState<User[]>([]);
-  const [nombre, setNombre] = useState('');
-  const [sucursal, setSucursal] = useState('');
-  const [tipo, setTipo] = useState('');
-  const [contraseña, setContraseña] = useState('');
+  const [Username, setNombre] = useState('');
+  const [Company, setSucursal] = useState('');
+  const [Type, setTipo] = useState('');
+  const [Password, setContraseña] = useState('');
   const [notification, setNotification] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -52,7 +54,7 @@ export default function Page() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!nombre || !sucursal || !tipo) {
+    if (!Username || !Company || !Type || !Password) {
       setNotification('Por favor completa todos los campos.');
       setTimeout(() => setNotification(null), 3000);
       return;
@@ -62,7 +64,7 @@ export default function Page() {
       const requestOptions = {
         method: isEdit ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre, sucursal, tipo }),
+        body: JSON.stringify({ Username, Company, Type, Password }),
       };
 
       const url = isEdit ? `http://127.0.0.1:5050/api/users/${currentUserId}` : 'http://127.0.0.1:5050/api/users';
@@ -108,10 +110,10 @@ export default function Page() {
 
   // Preparar el formulario para editar usuario
   const handleEditUser = (user: User) => {
-    setNombre(user.nombre);
-    setSucursal(user.sucursal);
-    setTipo(user.tipo);
-    setContraseña(user.contraseña)
+    setNombre(user.Username);
+    setSucursal(user.Company);
+    setTipo(user.Type);
+    setContraseña(user.Password)
     setCurrentUserId(user.id);
     setIsEdit(true);
     setShowForm(true);
@@ -130,18 +132,31 @@ export default function Page() {
 
   // Filtrar usuarios por nombre
   const filteredUsers = users.filter((user) =>
-    user.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+    user.Username.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className="min-h-screen p-8 relative bg-slate-50 dark:bg-black">
-      <h1 className="text-3xl font-bold mb-6">Gestión de Usuarios</h1>
+    <div className="min-h-screen p-8 relative bg-[url('http://localhost:3000/images/fondoClaro.png')] dark:bg-[url('http://localhost:3000/images/fondoOscuro.jpg')] bg-cover bg-no-repeat bg-center">
+      {/* Logo + Mensaje */}
+      <Image
+        src="/images/logo.png"
+        alt="Logo"
+        width={50}
+        height={50}
+        className="object-contain object-center mr-1"
+      />
+      <h2 className="text-4xl font-extrabold text-center text-black dark:text-white">
+        User management!
+      </h2>
+
       {/* Notificación */}
       {notification && (
-        <div className="mb-4 p-4 bg-green-100 text-green-700 rounded">
+        <div className="mb-4 p-4 h-10 bg-green-100 text-green-700 rounded">
           {notification}
         </div>
       )}
+
+      {/* Boton para volver a la pagina anterios */}
       <button
         className="bg-white text-center w-48 rounded-2xl h-14 relative text-black text-xl font-semibold group scale-75"
         type="button"
@@ -166,6 +181,7 @@ export default function Page() {
         </div>
         <p className="translate-x-2">Go Back</p>
       </button>
+
       {/* Botón para mostrar el formulario */}
       <button
         onClick={() => {
@@ -176,52 +192,54 @@ export default function Page() {
           setTipo('');
           setContraseña('');
         }}
-        className="mb-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        className="mb-4 bg-blue-500 h-10 text-white px-4 py-2 rounded-xl hover:bg-blue-600"
       >
-        {isEdit ? 'Editar Usuario' : 'Agregar Usuario'}
+        {isEdit ? 'Edit User' : 'Add User'}
       </button>
+
       {/* Barra de búsqueda */}
       <div className="max-w-md mb-6">
         <input
           type="text"
-          placeholder="Buscar por nombre..."
+          placeholder="Search by name..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-300 dark:placeholder:text-black dark:text-black"
         />
       </div>
+
       {/* Tabla de usuarios */}
       <div className="overflow-x-auto bg-slate-100 shadow-md rounded shadow-zinc-700 dark:shadow">
         <table className="min-w-full border-3">
           <thead className="bg-gray-600 dark:bg-black text-white ">
             <tr>
-              <th className="px-4 py-2 border-2 border-zinc-700">Nombre</th>
-              <th className="px-4 py-2 border-2 border-zinc-700">Sucursal</th>
-              <th className="px-4 py-2 border-2 border-zinc-700">Tipo de Usuario</th>
-              <th className="px-4 py-2 border-2 border-zinc-700">Contraseña</th>
-              <th className="px-4 py-2 border-2 border-zinc-700">Acciones</th>
+              <th className="px-4 py-2 border-2 border-zinc-700">Name</th>
+              <th className="px-4 py-2 border-2 border-zinc-700">Branch</th>
+              <th className="px-4 py-2 border-2 border-zinc-700">Type</th>
+              <th className="px-4 py-2 border-2 border-zinc-700">Password</th>
+              <th className="px-4 py-2 border-2 border-zinc-700">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredUsers.length > 0 ? (
               filteredUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-200 text-zinc-700">
-                  <td className="px-4 py-2 border-2 border-zinc-700">{user.nombre}</td>
-                  <td className="px-4 py-2 border-2 border-zinc-700">{user.sucursal}</td>
-                  <td className="px-4 py-2 border-2 border-zinc-700">{user.tipo}</td>
-                  <td className="px-4 py-2 border-2 border-zinc-700">{user.contraseña}</td>
+                <tr key={user.id} className="bg-slate-100 hover:bg-slate-300 dark:hover:bg-gray-400 text-zinc-700 dark:bg-gray-200">
+                  <td className="px-4 py-2 border-2 border-zinc-700">{user.Username}</td>
+                  <td className="px-4 py-2 border-2 border-zinc-700">{user.Company}</td>
+                  <td className="px-4 py-2 border-2 border-zinc-700">{user.Type}</td>
+                  <td className="px-4 py-2 border-2 border-zinc-700">{user.Password}</td>
                   <td className="px-3 py-2 border-2 border-zinc-700 justify-center">
                     <button
                       onClick={() => handleEditUser(user)}
                       className="text-blue-500 hover:underline"
                     >
-                      ✏️ Editar
+                      ✏️ Edit
                     </button>
                     <button
                       onClick={() => handleDeleteUser(user.id)}
                       className="text-red-500 hover:underline"
                     >
-                      🗑️ Eliminar
+                      🗑️ Delete
                     </button>
                   </td>
                 </tr>
@@ -236,52 +254,60 @@ export default function Page() {
           </tbody>
         </table>
       </div>
+
       {/* Modal para el formulario */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 shadow-lg w-full max-w-md rounded-xl">
-            <h2 className="text-2xl font-semibold mb-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
+          <div className="p-6 w-full max-w-md bg-white dark:bg-black shadow-2xl rounded-2xl overflow-hidden border-4 border-transparent dark:border-zinc-700">
+            <h2 className="text-2xl font-semibold mb-4 ">
+              <Image
+                src="/images/logo.png"
+                alt="Logo"
+                width={30}
+                height={30}
+                className="object-contain object-center mr-1"
+              />
               {isEdit ? 'Editar Usuario' : 'Agregar Usuario'}
             </h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="block text-gray-700">Nombre</label>
+                <label className="block text-gray-700 dark:text-white">Nombre</label>
                 <input
                   type="text"
-                  value={nombre}
+                  value={Username}
                   onChange={(e) => setNombre(e.target.value)}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-black dark:bg-slate-200"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700">Contraseña</label>
+                <label className="block text-gray-700 dark:text-white">Contraseña</label>
                 <input
                   type="text"
-                  value={nombre}
+                  value={Password}
                   onChange={(e) => setContraseña(e.target.value)}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-black dark:bg-slate-200"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700">Sucursal</label>
+                <label className="block text-gray-700 dark:text-white">Sucursal</label>
                 <input
                   type="text"
-                  value={sucursal}
+                  value={Company}
                   onChange={(e) => setSucursal(e.target.value)}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-black dark:bg-slate-200"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700">Tipo de Usuario</label>
+                <label className="block text-gray-700 dark:text-white">Tipo de Usuario</label>
                 <select
-                  value={tipo}
+                  value={Type}
                   onChange={(e) => setTipo(e.target.value)}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-black dark:bg-slate-300"
                 >
                   <option value="">Selecciona un tipo</option>
-                  <option value="Analista de datos">Analista de datos</option>
-                  <option value="Gerente de sucursal">Gerente de sucursal</option>
-                  <option value="Administrador">Administrador</option>
+                  <option value="Analista de datos">1</option>
+                  <option value="Gerente de sucursal">2</option>
+                  <option value="Administrador">3</option>
                 </select>
               </div>
               <div className="flex justify-end space-x-2">

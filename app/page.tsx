@@ -34,10 +34,6 @@ export default function Home() {
     }
   };
 
-
-
-
-
   const enviarDatos = async () => {
     const data = {
       name: 'John Doe',
