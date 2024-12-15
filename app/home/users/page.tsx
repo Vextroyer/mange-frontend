@@ -23,7 +23,7 @@ export default function Page() {
   const [notification, setNotification] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [id, setCurrentUserId] = useState<number | null>(null);
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -64,10 +64,10 @@ export default function Page() {
       const requestOptions = {
         method: isEdit ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ Username, Company, Type, Password }),
+        body: JSON.stringify({Username, Company, Type, Password }),
       };
 
-      const url = isEdit ? `http://127.0.0.1:5050/api/users/${currentUserId}` : 'http://127.0.0.1:5050/api/users';
+      const url = isEdit ? `http://127.0.0.1:5050/api/users/${id}` : 'http://127.0.0.1:5050/api/users';
       const response = await fetch(url, requestOptions);
 
       if (!response.ok) throw new Error(isEdit ? 'Error al editar usuario' : 'Error al agregar usuario');
@@ -75,7 +75,7 @@ export default function Page() {
       const user = await response.json();
 
       if (isEdit) {
-        setUsers(users.map((u) => (u.id === currentUserId ? user : u)));
+        setUsers(users.map((u) => (u.id === id ? user : u)));
       } else {
         setUsers([...users, user]);
       }
@@ -305,9 +305,9 @@ export default function Page() {
                   className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-black dark:bg-slate-300"
                 >
                   <option value="">Selecciona un tipo</option>
-                  <option value="Analista de datos">1</option>
-                  <option value="Gerente de sucursal">2</option>
-                  <option value="Administrador">3</option>
+                  <option value="1">Analista de datos</option>
+                  <option value="2">Gerente de sucursal</option>
+                  <option value="3">Administrador</option>
                 </select>
               </div>
               <div className="flex justify-end space-x-2">
