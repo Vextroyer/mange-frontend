@@ -33,5 +33,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-public/images/fondoOscuro.jpg
 public/images/Imagen pegada.png
