@@ -64,7 +64,7 @@ export default function Page() {
       const requestOptions = {
         method: isEdit ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({Username, Company, Type, Password }),
+        body: JSON.stringify({ Username, Company, Type, Password }),
       };
 
       const url = isEdit ? `http://127.0.0.1:5050/api/users/${id}` : 'http://127.0.0.1:5050/api/users';
@@ -137,18 +137,19 @@ export default function Page() {
 
   return (
     <div className="min-h-screen p-8 relative bg-[url('http://localhost:3000/images/fondoClaro.png')] dark:bg-[url('http://localhost:3000/images/fondoOscuro.jpg')] bg-cover bg-no-repeat bg-center">
-      {/* Logo + Mensaje */}
-      <Image
-        src="/images/logo.png"
-        alt="Logo"
-        width={50}
-        height={50}
-        className="object-contain object-center mr-1"
-      />
-      <h2 className="text-4xl font-extrabold text-center text-black dark:text-white">
-        User management!
-      </h2>
-
+      <div className='flex justify-center items-center'>
+        {/* Logo + Mensaje */}
+        <Image
+          src="/images/logo.png"
+          alt="Logo"
+          width={50}
+          height={50}
+          className="object-contain object-center mr-1"
+        />
+        <h2 className="text-4xl font-extrabold text-center text-black dark:text-white">
+          User management!
+        </h2>
+      </div>
       {/* Notificación */}
       {notification && (
         <div className="mb-4 p-4 h-10 bg-green-100 text-green-700 rounded">
