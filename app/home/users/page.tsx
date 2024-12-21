@@ -1,25 +1,31 @@
-/* eslint-disable react/jsx-no-undef */
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from "next/image";
+import React from 'react';
 
 interface User {
   id: number;
   Username: string;
   Company: string;
   Type: string;
-  Password: string;
+}
+interface AppError {
+  message: string;
+  status?: number;
+  details?: string;
 }
 
 export default function Page() {
 
+  const [error, setError] = useState<AppError>();
   const [users, setUsers] = useState<User[]>([]);
-  const [Username, setNombre] = useState('');
-  const [Company, setSucursal] = useState('');
-  const [Type, setTipo] = useState('');
-  const [Password, setContraseña] = useState('');
+  const [Username, setName] = useState('');
+  const [Company, setCompany] = useState('');
+  const [Type, setType] = useState('');
+  const [Password, setPassword] = useState('');
+  const [NewPassword, setNewPassword] = useState('');
   const [notification, setNotification] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -27,118 +33,112 @@ export default function Page() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
 
-
-  //volver a la pagina home
   const handleRedireccion = () => {
     router.back();
   };
-
-  //Cargar usuarios al abrir la página
-  useEffect(() => { fetchUsers(); }, []);
-
-  const fetchUsers = async () => {
-    try {
-      const response = await fetch('http://127.0.0.1:5050/api/users');
-      if (!response.ok) throw new Error('Error al obtener usuarios');
-      const data = await response.json();
-      // console.log('Usuarios cargados:', data); //Verificar los datos recibidos
-      setUsers(data);
-    } catch (error) {
-      console.error(error);
-      setNotification('Error al cargar usuarios.');
-      setTimeout(() => setNotification(null), 3000);
+  const showNotification = (message: string) => {
+    setNotification(message);
+    setTimeout(() => setNotification(null), 3000);
+  };
+  const createAppError = (error: unknown): AppError => {
+    if (error instanceof Error) {
+      return { message: error.message };
+    } else if (typeof error === 'string') {
+      return { message: error };
+    } else {
+      return { message: 'Error desconocido.' };
     }
   };
-
-  //Crear o editar un usuario
+  const handleFetchError = (error: unknown, action: string) => {
+    const appError = createAppError(error);
+    console.error(`Error ${appError.status} when ${action}:`, appError.message);
+    if (appError.details) {
+      console.error(`Detalles: ${appError.details}`);
+    }
+    showNotification(`Error ${appError.status} when ${action}: ${appError.message}`);
+  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps 
+  useEffect(() => { fetchUsers(); }, []);
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:5050/api/user');
+      if (!response.ok) throw new Error();
+      const data = await response.json();
+      // console.log('Usuarios cargados:', data);
+      setUsers(data);
+    } catch (Error) {
+      handleFetchError(Error, 'load users');
+    }
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!Username || !Company || !Type || !Password) {
-      setNotification('Por favor completa todos los campos.');
-      setTimeout(() => setNotification(null), 3000);
+      showNotification('Please complete all fields.');
       return;
     }
-
     try {
       const requestOptions = {
         method: isEdit ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ Username, Company, Type, Password }),
       };
-
-      const url = isEdit ? `http://127.0.0.1:5050/api/users/${id}` : 'http://127.0.0.1:5050/api/users';
+      const url = isEdit ? `http://127.0.0.1:5050/api/user/${id}` : 'http://127.0.0.1:5050/api/user';
       const response = await fetch(url, requestOptions);
-
-      if (!response.ok) throw new Error(isEdit ? 'Error al editar usuario' : 'Error al agregar usuario');
-
-      const user = await response.json();
-
-      if (isEdit) {
-        setUsers(users.map((u) => (u.id === id ? user : u)));
-      } else {
-        setUsers([...users, user]);
+      if (!response.ok) throw new Error(isEdit ? 'Error editing user.' : 'Error adding user.');
+      // throw new Error(`Error al guardar usuario: ${response.statusText} (Código: ${response.status})`);
+      else {
+        const user = await response.json();
+        if (isEdit) {
+          setUsers(users.map((u) => (u.id === id ? user : u)));
+        } else {
+          setUsers([...users, user]);
+        }
+        showNotification(isEdit ? 'User successfully updated.' : 'User successfully added.');
+        resetForm();
       }
-
-      setNotification(isEdit ? 'Usuario actualizado exitosamente.' : 'Usuario agregado exitosamente.');
-      setTimeout(() => setNotification(null), 3000);
-      resetForm();
-    } catch (error) {
-      console.error(error);
-      setNotification('Error al guardar usuario.');
-      setTimeout(() => setNotification(null), 3000);
+    } catch (Error) {
+      handleFetchError(Error, isEdit? 'updated user':'added user');
     }
   };
-
-  // 3. Eliminar usuario
   const handleDeleteUser = async (id: number) => {
-    const confirmed = window.confirm('¿Está seguro de que quiere eliminar el usuario?');
+    const confirmed = window.confirm('Are you sure you want to delete the user?');
     if (!confirmed) return;
 
     try {
-      const response = await fetch(`http://127.0.0.1:5050/api/users/${id}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Error al eliminar usuario');
+      const response = await fetch(`http://127.0.0.1:5050/api/user/${id}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error('Error deleting user');
       setUsers(users.filter((user) => user.id !== id));
-      setNotification('Usuario eliminado exitosamente.');
-      setTimeout(() => setNotification(null), 3000);
-    } catch (error) {
-      console.error(error);
-      setNotification('Error al eliminar usuario.');
-      setTimeout(() => setNotification(null), 3000);
+      showNotification('User successfully deleted.');
+    } catch (Error) {
+      handleFetchError(Error, 'deleting user');
     }
   };
-
-  // Preparar el formulario para editar usuario
   const handleEditUser = (user: User) => {
-    setNombre(user.Username);
-    setSucursal(user.Company);
-    setTipo(user.Type);
-    setContraseña(user.Password)
+    setName(user.Username);
+    setCompany(user.Company);
+    setType(user.Type);
+    setPassword('')
     setCurrentUserId(user.id);
     setIsEdit(true);
     setShowForm(true);
   };
-
-  // Reiniciar formulario
   const resetForm = () => {
-    setNombre('');
-    setSucursal('');
-    setTipo('');
-    setContraseña('');
+    setName('');
+    setCompany('');
+    setType('');
+    setPassword('');
     setCurrentUserId(null);
     setIsEdit(false);
     setShowForm(false);
   };
-
-  // Filtrar usuarios por nombre
   const filteredUsers = users.filter((user) =>
     user.Username.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className="min-h-screen p-8 relative bg-[url('http://localhost:3000/images/fondoClaro.png')] dark:bg-[url('http://localhost:3000/images/fondoOscuro.jpg')] bg-cover bg-no-repeat bg-center">
+    <div className="min-h-screen p-8 relative bg-[url('http://localhost:3000/images/fondoClaro.png')] dark:bg-[url('http://localhost:3000/images/fondoOscuro.jpg')] bg-cover bg-no-repeat bg-center bg-fixed ">
+      
       <div className='flex justify-center items-center'>
-        {/* Logo + Mensaje */}
         <Image
           src="/images/logo.png"
           alt="Logo"
@@ -150,14 +150,13 @@ export default function Page() {
           User management!
         </h2>
       </div>
-      {/* Notificación */}
+
       {notification && (
         <div className="mb-4 p-4 h-10 bg-green-100 text-green-700 rounded">
           {notification}
         </div>
       )}
 
-      {/* Boton para volver a la pagina anterios */}
       <button
         className="bg-white text-center w-48 rounded-2xl h-14 relative text-black text-xl font-semibold group scale-75"
         type="button"
@@ -182,23 +181,22 @@ export default function Page() {
         </div>
         <p className="translate-x-2">Go Back</p>
       </button>
-
-      {/* Botón para mostrar el formulario */}
+      
       <button
         onClick={() => {
           setShowForm(true);
           setIsEdit(false);
-          setNombre('');
-          setSucursal('');
-          setTipo('');
-          setContraseña('');
+          setName('');
+          setCompany('');
+          setType('');
+          setPassword('');
         }}
         className="mb-4 bg-blue-500 h-10 text-white px-4 py-2 rounded-xl hover:bg-blue-600"
       >
-        {isEdit ? 'Edit User' : 'Add User'}
+        Add User
+      
       </button>
-
-      {/* Barra de búsqueda */}
+      
       <div className="max-w-md mb-6">
         <input
           type="text"
@@ -208,8 +206,7 @@ export default function Page() {
           className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-300 dark:placeholder:text-black dark:text-black"
         />
       </div>
-
-      {/* Tabla de usuarios */}
+      
       <div className="overflow-x-auto bg-slate-100 shadow-md rounded shadow-zinc-700 dark:shadow">
         <table className="min-w-full border-3">
           <thead className="bg-gray-600 dark:bg-black text-white ">
@@ -217,7 +214,7 @@ export default function Page() {
               <th className="px-4 py-2 border-2 border-zinc-700">Name</th>
               <th className="px-4 py-2 border-2 border-zinc-700">Branch</th>
               <th className="px-4 py-2 border-2 border-zinc-700">Type</th>
-              <th className="px-4 py-2 border-2 border-zinc-700">Password</th>
+              {/* <th className="px-4 py-2 border-2 border-zinc-700">Password</th> */}
               <th className="px-4 py-2 border-2 border-zinc-700">Actions</th>
             </tr>
           </thead>
@@ -228,7 +225,7 @@ export default function Page() {
                   <td className="px-4 py-2 border-2 border-zinc-700">{user.Username}</td>
                   <td className="px-4 py-2 border-2 border-zinc-700">{user.Company}</td>
                   <td className="px-4 py-2 border-2 border-zinc-700">{user.Type}</td>
-                  <td className="px-4 py-2 border-2 border-zinc-700">{user.Password}</td>
+                  {/* <td className="px-4 py-2 border-2 border-zinc-700">{user.Password}</td> */}
                   <td className="px-3 py-2 border-2 border-zinc-700 justify-center">
                     <button
                       onClick={() => handleEditUser(user)}
@@ -251,12 +248,12 @@ export default function Page() {
                   No se encontraron usuarios.
                 </td>
               </tr>
-            )}
+            )
+            }
           </tbody>
         </table>
       </div>
 
-      {/* Modal para el formulario */}
       {showForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
           <div className="p-6 w-full max-w-md bg-white dark:bg-black shadow-2xl rounded-2xl overflow-hidden border-4 border-transparent dark:border-zinc-700">
@@ -268,47 +265,58 @@ export default function Page() {
                 height={30}
                 className="object-contain object-center mr-1"
               />
-              {isEdit ? 'Editar Usuario' : 'Agregar Usuario'}
+              {isEdit ? "Editar Usuario" : "Agregar Usuario"}
             </h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="block text-gray-700 dark:text-white">Nombre</label>
+                <label className="block text-gray-700 dark:text-white">Name</label>
                 <input
                   type="text"
                   value={Username}
-                  onChange={(e) => setNombre(e.target.value)}
+                  onChange={(e) => setName(e.target.value)}
                   className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-black dark:bg-slate-200"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 dark:text-white">Contraseña</label>
+                <label className="block text-gray-700 dark:text-white">Password</label>
                 <input
                   type="text"
                   value={Password}
-                  onChange={(e) => setContraseña(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-black dark:bg-slate-200"
                 />
               </div>
+              {isEdit ?
+                <div className="mb-4">
+                  <label className="block text-gray-700 dark:text-white">New Password</label>
+                  <input
+                    type="text"
+                    value={NewPassword}
+                    placeholder="optional"
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-black dark:bg-slate-200 placeholder:text-gray-700"
+                  />
+                </div> : <></>}
               <div className="mb-4">
-                <label className="block text-gray-700 dark:text-white">Sucursal</label>
+                <label className="block text-gray-700 dark:text-white">Company</label>
                 <input
                   type="text"
                   value={Company}
-                  onChange={(e) => setSucursal(e.target.value)}
+                  onChange={(e) => setCompany(e.target.value)}
                   className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-black dark:bg-slate-200"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 dark:text-white">Tipo de Usuario</label>
+                <label className="block text-gray-700 dark:text-white">User type</label>
                 <select
                   value={Type}
-                  onChange={(e) => setTipo(e.target.value)}
+                  onChange={(e) => setType(e.target.value)}
                   className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-black dark:bg-slate-300"
                 >
-                  <option value="">Selecciona un tipo</option>
-                  <option value="1">Analista de datos</option>
-                  <option value="2">Gerente de sucursal</option>
-                  <option value="3">Administrador</option>
+                  <option value="">Select a type</option>
+                  <option value="1">Analyst</option>
+                  <option value="2">Manacher</option>
+                  <option value="3">Admin</option>
                 </select>
               </div>
               <div className="flex justify-end space-x-2">
@@ -330,6 +338,7 @@ export default function Page() {
           </div>
         </div>
       )}
+      
     </div>
   );
 }

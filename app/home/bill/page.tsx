@@ -2,6 +2,7 @@
 
 import { ChangeEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function FormularioDinamico() {
   const [formularios, setFormularios] = useState([
@@ -14,6 +15,7 @@ export default function FormularioDinamico() {
   };
   // Lista de sucursales
   const sucursales = ["Sucursal A", "Sucursal B", "Sucursal C", "Sucursal D"];
+  const [notification, setNotification] = useState<string | null>(null);
 
   // Manejar cambios en los campos de un formulario específico
   const handleInputChange = (
@@ -25,8 +27,6 @@ export default function FormularioDinamico() {
       prev.map((form) => (form.id === id ? { ...form, [name]: value } : form))
     );
   };
-
-  // Enviar datos al backend
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
@@ -47,56 +47,77 @@ export default function FormularioDinamico() {
       alert("Error al conectar con el servidor");
     }
   };
-
-  // Agregar un nuevo formulario
-  const agregarFormulario = () => {
+  const addForm = () => {
     setFormularios((prev) => [
       ...prev,
       { id: prev.length + 1, fecha: "", consumo: "", sucursal: "" },
     ]);
   };
-
-  // Eliminar un formulario
-  const eliminarFormulario = (id: number) => {
+  const deleteForm = (id: number) => {
     setFormularios((prev) => prev.filter((form) => form.id !== id));
   };
-
   return (
-    <div className="flex flex-col gap-4 items-center min-h-screen bg-gray-100 p-4 bg-[url('http://localhost:3000/images/fondoClaro.png')] dark:bg-[url('http://localhost:3000/images/login.png')] bg-cover bg-no-repeat bg-center overflow-auto ">
-      <button
-        className="bg-white text-center w-48 rounded-2xl h-14 relative text-black text-xl font-semibold group scale-75"
-        type="button"
-        onClick={handleRedireccion}
-      >
-        <div className="bg-green-400 rounded-xl h-12 w-1/4 flex items-center justify-center absolute left-1 top-[4px] group-hover:w-[184px] z-10 duration-500">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 1024 1024"
-            height="25px"
-            width="25px"
-          >
-            <path
-              d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"
-              fill="#000000"
-            ></path>
-            <path
-              d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"
-              fill="#000000"
-            ></path>
-          </svg>
+    <div className="flex flex-col gap-4 items-center min-h-screen bg-gray-100 p-4 bg-[url('http://localhost:3000/images/fondoClaro.png')] dark:bg-[url('http://localhost:3000/images/fondoOscuro.jpg')] bg-cover bg-no-repeat bg-center overflow-auto bg-fixed">
+
+      <div className='flex justify-center items-center'>
+        <Image
+          src="/images/logo.png"
+          alt="Logo"
+          width={50}
+          height={50}
+          className="object-contain object-center mr-1"
+        />
+        <h2 className="text-4xl font-extrabold text-center text-black dark:text-white">
+          Consumption records!
+        </h2>
+      </div>
+      {notification && (
+        <div className="mb-4 p-4 h-10 bg-green-100 text-green-700 rounded">
+          {notification}
         </div>
-        <p className="translate-x-2">Go Back</p>
-      </button>
+      )}
+      <div className="flex flex-row justify-center items-center">
+        <button
+          className="bg-white text-center w-48 rounded-2xl h-14 relative text-black text-xl font-semibold group scale-75"
+          type="button"
+          onClick={handleRedireccion}
+        >
+          <div className="bg-green-400 rounded-xl h-12 w-1/4 flex items-center justify-center absolute left-1 top-[4px] group-hover:w-[184px] z-10 duration-500">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 1024 1024"
+              height="25px"
+              width="25px"
+            >
+              <path
+                d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"
+                fill="#000000"
+              ></path>
+              <path
+                d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"
+                fill="#000000"
+              ></path>
+            </svg>
+          </div>
+          <p className="translate-x-2">Go Back</p>
+        </button>
+        <button
+          type="button"
+          onClick={addForm}
+          className="bg-green-500 hover:bg-green-700 text-white w-14 h-10 rounded focus:outline-none focus:shadow-outline dark:shadow-slate-900 dark:shadow-lg shadow-zinc-700 shadow-md"
+        >
+          New
+        </button>
+      </div>
       <form onSubmit={handleSubmit} className="w-full max-w-md">
         {formularios.map((formulario) => (
           <div
             key={formulario.id}
             className="relative bg-white shadow-md px-8 pt-6 pb-8 mb-4 dark:border-4 dark:border-zinc-700 rounded-2xl  dark:bg-black "
           >
-            {/* Botón para eliminar formulario */}
             <button
               type="button"
-              onClick={() => eliminarFormulario(formulario.id)}
+              onClick={() => deleteForm(formulario.id)}
               className="absolute top-2 right-2 text-gray-400 hover:text-red-600 p-1 scale-125 dark:text-white"
               aria-label="Eliminar formulario"
             >
@@ -168,18 +189,17 @@ export default function FormularioDinamico() {
           </div>
         ))}
 
-        {/* Botones */}
         <div className="flex justify-between items-center">
           <button
             type="button"
-            onClick={agregarFormulario}
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline dark:shadow-slate-900 dark:shadow-lg "
+            onClick={addForm}
+            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline dark:shadow-slate-900 dark:shadow-lg shadow-zinc-700 shadow-md"
           >
             New
           </button>
           <button
             type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline  dark:shadow-black dark:shadow-lg "
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline  shadow-zinc-700 shadow-md "
           >
             Registrar
           </button>

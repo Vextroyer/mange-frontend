@@ -1,19 +1,20 @@
 "use client"
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import React from "react";
 import { useState } from "react";
 
 export default function Home() {
 
-  const router = useRouter();
-  const handleRedireccion = () => {
-    router.push("/home");
-  };
-
   // Hacer controlados los campos del formulario
   const [name,setName] = useState("")
   const [password,setPassword] = useState("")
-
+  const router = useRouter();
+  
+  const handleRedireccion = () => {
+    router.push("/home");
+  };
+  
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
@@ -24,39 +25,16 @@ export default function Home() {
       });
 	  console.log(response)
       if (response.ok) {
-        alert("Datos enviados correctamente");
+        // alert("Datos enviados correctamente");
+        
+        handleRedireccion();
       } else {
-        alert("Hubo un problema al enviar los datos");
+        alert("There was a problem sending the data");
       }
     } catch (error) {
       console.error("Error al enviar los datos:", error);
       alert("Error al conectar con el servidor");
     }
-  };
-
-  const enviarDatos = async () => {
-    const data = {
-      name: 'John Doe',
-      email: 'johndoe@example.com',
-    };
-
-    try {
-      const res = await fetch('http://127.0.0.1:5050', {
-        method: 'POST',             // Método HTTP
-        headers: {
-          'Content-Type': 'application/json', // Especifica que envías un JSON
-        },
-        body: JSON.stringify(data), // Convierte el objeto a una cadena JSON
-      });
-      if (res.ok) { handleRedireccion }
-      else {
-        throw new Error(`Error: ${res.status}`);
-      }
-      const result = await res.json(); // Convierte la respuesta a JSON
-      new Response(result);
-    } catch (error) {
-      console.error('Error al enviar los datos:', error);
-    };
   };
 
   return (
