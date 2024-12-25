@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from "next/image";
 import React from 'react';
+import Cookies from "js-cookie";
+import { headers } from 'next/headers';
 
 interface User {
   id: number;
@@ -19,6 +21,7 @@ interface AppError {
 
 export default function Page() {
 
+  const token = Cookies.get("token");
   const [error, setError] = useState<AppError>();
   const [users, setUsers] = useState<User[]>([]);
   const [Username, setName] = useState('');
@@ -60,15 +63,22 @@ export default function Page() {
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   useEffect(() => { fetchUsers(); }, []);
   const fetchUsers = async () => {
-    try {
-      const response = await fetch('http://127.0.0.1:5050/api/user');
-      if (!response.ok) throw new Error();
-      const data = await response.json();
-      // console.log('Usuarios cargados:', data);
-      setUsers(data);
-    } catch (Error) {
-      handleFetchError(Error, 'load users');
-    }
+    // if (token) {
+      try {
+        // const response = await fetch('http://127.0.0.1:5050/api/user', { headers: { Authorization: token }, })
+        const response = await fetch("http://localhost:5050/api/user", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!response.ok) throw new Error();
+        const data = await response.json();
+        // console.log('Usuarios cargados:', data);
+        setUsers(data);
+      } catch (Error) {
+        handleFetchError(Error, 'load users');
+      }
+    // } else {
+    //   handleFetchError(createAppError({ message: "Please log in", status: 404, details: "No token found when loading users" }), "loading users");
+    // }
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,7 +90,8 @@ export default function Page() {
       const requestOptions = {
         method: isEdit ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ Username, Company, Type, Password }),
+        body: JSON.stringify(isEdit ? { Username, Company, Type, Password, NewPassword }
+          : { Username, Company, Type, Password }),
       };
       const url = isEdit ? `http://127.0.0.1:5050/api/user/${id}` : 'http://127.0.0.1:5050/api/user';
       const response = await fetch(url, requestOptions);
@@ -97,7 +108,7 @@ export default function Page() {
         resetForm();
       }
     } catch (Error) {
-      handleFetchError(Error, isEdit? 'updated user':'added user');
+      handleFetchError(Error, isEdit ? 'updated user' : 'added user');
     }
   };
   const handleDeleteUser = async (id: number) => {
@@ -137,7 +148,7 @@ export default function Page() {
 
   return (
     <div className="min-h-screen p-8 relative bg-[url('http://localhost:3000/images/fondoClaro.png')] dark:bg-[url('http://localhost:3000/images/fondoOscuro.jpg')] bg-cover bg-no-repeat bg-center bg-fixed ">
-      
+
       <div className='flex justify-center items-center'>
         <Image
           src="/images/logo.png"
@@ -181,7 +192,7 @@ export default function Page() {
         </div>
         <p className="translate-x-2">Go Back</p>
       </button>
-      
+
       <button
         onClick={() => {
           setShowForm(true);
@@ -194,9 +205,9 @@ export default function Page() {
         className="mb-4 bg-blue-500 h-10 text-white px-4 py-2 rounded-xl hover:bg-blue-600"
       >
         Add User
-      
+
       </button>
-      
+
       <div className="max-w-md mb-6">
         <input
           type="text"
@@ -206,7 +217,7 @@ export default function Page() {
           className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-300 dark:placeholder:text-black dark:text-black"
         />
       </div>
-      
+
       <div className="overflow-x-auto bg-slate-100 shadow-md rounded shadow-zinc-700 dark:shadow">
         <table className="min-w-full border-3">
           <thead className="bg-gray-600 dark:bg-black text-white ">
@@ -314,9 +325,9 @@ export default function Page() {
                   className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-black dark:bg-slate-300"
                 >
                   <option value="">Select a type</option>
-                  <option value="1">Analyst</option>
-                  <option value="2">Manacher</option>
-                  <option value="3">Admin</option>
+                  <option value="Analyst">Analyst</option>
+                  <option value="Manacher">Manacher</option>
+                  <option value="Admin">Admin</option>
                 </select>
               </div>
               <div className="flex justify-end space-x-2">
@@ -338,7 +349,7 @@ export default function Page() {
           </div>
         </div>
       )}
-      
+
     </div>
   );
 }

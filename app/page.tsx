@@ -3,32 +3,38 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useState } from "react";
+import Cookies from "js-cookie";
 
 export default function Home() {
 
   // Hacer controlados los campos del formulario
-  const [name,setName] = useState("")
-  const [password,setPassword] = useState("")
+  const [name, setName] = useState("")
+  const [password, setPassword] = useState("")
   const router = useRouter();
-  
+
   const handleRedireccion = () => {
     router.push("/home");
   };
-  
+
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
       const response = await fetch("http://localhost:5050/api/user/login/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({"name":name,"password":password}),
+        body: JSON.stringify({ "Username": name, "Password": password }),
       });
-	  console.log(response)
+      console.log(response)
       if (response.ok) {
-        // alert("Datos enviados correctamente");
-        
+        const data = await response.json();
+        Cookies.set("token", data.token, {
+          expires: 1, // Duración de 1 día
+          secure: true, // Solo se envía por HTTPS
+          sameSite: "Strict", // Protección contra CSRF
+        });
         handleRedireccion();
-      } else {
+      } 
+      else {
         alert("There was a problem sending the data");
       }
     } catch (error) {
@@ -165,8 +171,8 @@ export default function Home() {
                   Name
                 </label>
                 <input
-				  value={name}
-				  onChange={e => setName(e.target.value)}
+                  value={name}
+                  onChange={e => setName(e.target.value)}
                   placeholder="JhonDoe"
                   className="block w-full px-4 py-3 mt-2 text-zinc-800 bg-white border-2 rounded-lg dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-opacity-50 focus:outline-none focus:ring focus:ring-blue-400 border-zinc-500"
                   name="name"
@@ -182,8 +188,8 @@ export default function Home() {
                   Password
                 </label>
                 <input
-				  value={password}
-				  onChange={e => setPassword(e.target.value)}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••"
                   className="block w-full px-4 py-3 mt-2 text-zinc-800 bg-white border-2 rounded-lg dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-opacity-50 focus:outline-none focus:ring focus:ring-blue-400 border-zinc-500"
                   name="password"

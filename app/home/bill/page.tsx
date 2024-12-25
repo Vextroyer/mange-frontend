@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function FormularioDinamico() {
+
+  const router = useRouter();
   const [formularios, setFormularios] = useState([
     { id: 1, fecha: "", consumo: "", sucursal: "" },
   ]);
-  const router = useRouter();
-
+  
   const handleRedireccion = () => {
     router.push("/home");
   };
@@ -71,12 +72,15 @@ export default function FormularioDinamico() {
           Consumption records!
         </h2>
       </div>
+
       {notification && (
         <div className="mb-4 p-4 h-10 bg-green-100 text-green-700 rounded">
           {notification}
         </div>
       )}
+
       <div className="flex flex-row justify-center items-center">
+        
         <button
           className="bg-white text-center w-48 rounded-2xl h-14 relative text-black text-xl font-semibold group scale-75"
           type="button"
@@ -101,6 +105,7 @@ export default function FormularioDinamico() {
           </div>
           <p className="translate-x-2">Go Back</p>
         </button>
+        
         <button
           type="button"
           onClick={addForm}
@@ -108,8 +113,11 @@ export default function FormularioDinamico() {
         >
           New
         </button>
+
       </div>
+
       <form onSubmit={handleSubmit} className="w-full max-w-md">
+        
         {formularios.map((formulario) => (
           <div
             key={formulario.id}
