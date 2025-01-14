@@ -5,19 +5,9 @@ import { useRouter } from 'next/navigation';
 import Image from "next/image";
 import React from 'react';
 import Cookies from "js-cookie";
-import { headers } from 'next/headers';
-
-interface User {
-  id: number;
-  Username: string;
-  Company: string;
-  Type: string;
-}
-interface AppError {
-  message: string;
-  status?: number;
-  details?: string;
-}
+import User from "@/src/models/User"
+import { AppError, handleFetchError } from '@/src/models/Error';
+import showNotification from '@/src/utils/Notifications';
 
 export default function Page() {
 
@@ -27,9 +17,9 @@ export default function Page() {
   const [Username, setName] = useState('');
   const [Company, setCompany] = useState('');
   const [Type, setType] = useState('');
+  const [notification, setNotification] = useState<string | null>(null);
   const [Password, setPassword] = useState('');
   const [NewPassword, setNewPassword] = useState('');
-  const [notification, setNotification] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [id, setCurrentUserId] = useState<number | null>(null);
@@ -39,31 +29,9 @@ export default function Page() {
   const handleRedireccion = () => {
     router.back();
   };
-  const showNotification = (message: string) => {
-    setNotification(message);
-    setTimeout(() => setNotification(null), 3000);
-  };
-  const createAppError = (error: unknown): AppError => {
-    if (error instanceof Error) {
-      return { message: error.message };
-    } else if (typeof error === 'string') {
-      return { message: error };
-    } else {
-      return { message: 'Error desconocido.' };
-    }
-  };
-  const handleFetchError = (error: unknown, action: string) => {
-    const appError = createAppError(error);
-    console.error(`Error ${appError.status} when ${action}:`, appError.message);
-    if (appError.details) {
-      console.error(`Detalles: ${appError.details}`);
-    }
-    showNotification(`Error ${appError.status} when ${action}: ${appError.message}`);
-  };
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   useEffect(() => { fetchUsers(); }, []);
   const fetchUsers = async () => {
-    // if (token) {
       try {
         // const response = await fetch('http://127.0.0.1:5050/api/user', { headers: { Authorization: token }, })
         const response = await fetch("http://localhost:5050/api/user", {
@@ -74,16 +42,13 @@ export default function Page() {
         // console.log('Usuarios cargados:', data);
         setUsers(data);
       } catch (Error) {
-        handleFetchError(Error, 'load users');
+        handleFetchError(Error, 'load users', setNotification);
       }
-    // } else {
-    //   handleFetchError(createAppError({ message: "Please log in", status: 404, details: "No token found when loading users" }), "loading users");
-    // }
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!Username || !Company || !Type || !Password) {
-      showNotification('Please complete all fields.');
+      showNotification('Please complete all fields.', setNotification);
       return;
     }
     try {
@@ -104,11 +69,11 @@ export default function Page() {
         } else {
           setUsers([...users, user]);
         }
-        showNotification(isEdit ? 'User successfully updated.' : 'User successfully added.');
+        showNotification(isEdit ? 'User successfully updated.' : 'User successfully added.' , setNotification);
         resetForm();
       }
     } catch (Error) {
-      handleFetchError(Error, isEdit ? 'updated user' : 'added user');
+      handleFetchError(Error, isEdit ? 'updated user' : 'added user', setNotification);
     }
   };
   const handleDeleteUser = async (id: number) => {
@@ -119,9 +84,9 @@ export default function Page() {
       const response = await fetch(`http://127.0.0.1:5050/api/user/${id}`, { method: 'DELETE' });
       if (!response.ok) throw new Error('Error deleting user');
       setUsers(users.filter((user) => user.id !== id));
-      showNotification('User successfully deleted.');
+      showNotification('User successfully deleted.', setNotification);
     } catch (Error) {
-      handleFetchError(Error, 'deleting user');
+      handleFetchError(Error, 'deleting user', setNotification);
     }
   };
   const handleEditUser = (user: User) => {
@@ -129,6 +94,7 @@ export default function Page() {
     setCompany(user.Company);
     setType(user.Type);
     setPassword('')
+    setNewPassword('');
     setCurrentUserId(user.id);
     setIsEdit(true);
     setShowForm(true);
@@ -138,6 +104,7 @@ export default function Page() {
     setCompany('');
     setType('');
     setPassword('');
+    setNewPassword('');
     setCurrentUserId(null);
     setIsEdit(false);
     setShowForm(false);
@@ -284,27 +251,28 @@ export default function Page() {
                 <input
                   type="text"
                   value={Username}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={e => setName(e.target.value)}
                   className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-black dark:bg-slate-200"
                 />
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 dark:text-white">Password</label>
                 <input
-                  type="text"
+                  type="password"
                   value={Password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-black dark:bg-slate-200"
+                  placeholder='insert the password'
+                  onChange={e => setPassword(e.target.value)}
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-black dark:bg-slate-200 placeholder:text-gray-700"
                 />
               </div>
               {isEdit ?
                 <div className="mb-4">
                   <label className="block text-gray-700 dark:text-white">New Password</label>
                   <input
-                    type="text"
+                    type="password"
                     value={NewPassword}
                     placeholder="optional"
-                    onChange={(e) => setNewPassword(e.target.value)}
+                    onChange={e => setNewPassword(e.target.value)}
                     className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-black dark:bg-slate-200 placeholder:text-gray-700"
                   />
                 </div> : <></>}
@@ -313,7 +281,7 @@ export default function Page() {
                 <input
                   type="text"
                   value={Company}
-                  onChange={(e) => setCompany(e.target.value)}
+                  onChange={e => setCompany(e.target.value)}
                   className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-black dark:bg-slate-200"
                 />
               </div>
@@ -321,7 +289,7 @@ export default function Page() {
                 <label className="block text-gray-700 dark:text-white">User type</label>
                 <select
                   value={Type}
-                  onChange={(e) => setType(e.target.value)}
+                  onChange={e => setType(e.target.value)}
                   className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-black dark:bg-slate-300"
                 >
                   <option value="">Select a type</option>

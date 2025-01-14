@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+// import { useState } from "react";
 
 export const metadata: Metadata = {
   title: "Voltman",
@@ -11,9 +12,17 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // const [notification, setNotification] = useState<string | null>(null);
+
   return (
     <html lang="en">
-      <body>{children}
+      <body>
+        {/* {notification && (
+          <div className="mb-4 p-4 h-10 bg-green-100 text-green-700 rounded">
+            {notification}
+          </div>
+        )} */}
+        {children}
       </body>
     </html>
   );
