@@ -1,6 +1,16 @@
 import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-// import { useState } from "react";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "Voltman",
@@ -12,16 +22,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // const [notification, setNotification] = useState<string | null>(null);
-
   return (
     <html lang="en">
-      <body>
-        {/* {notification && (
-          <div className="mb-4 p-4 h-10 bg-green-100 text-green-700 rounded">
-            {notification}
-          </div>
-        )} */}
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         {children}
       </body>
     </html>

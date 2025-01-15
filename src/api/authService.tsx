@@ -1,11 +1,9 @@
+'use client';
 import Cookies from "js-cookie";
 
-export interface LoginResponse {
-    token: string;
-}
-
-export async function login(Username: string, Password: string): Promise<LoginResponse> {
+export async function login(Username: string, Password: string):Promise<boolean>{
     try {
+
         const response = await fetch("http://localhost:5050/api/user/login", {
             method: "POST",
             headers: {
@@ -14,15 +12,11 @@ export async function login(Username: string, Password: string): Promise<LoginRe
             body: JSON.stringify({ Username: Username, Password: Password }),
         });
 
-        if (!response.ok) {
-            const errorMsg = `Error ${response.status}: ${response.statusText}`;
-            throw new Error(errorMsg); // Manejo de errores HTTP
-        }
-
         const data = await response.json();
 
-        if (!data || typeof data.token !== "string") {
-            throw new Error("Invalid Token.");
+        if (!response.ok) {
+            const errorMessage = `Error ${response.status}: ${data.error}`;
+            throw new Error(errorMessage || "Undefined Error");
         }
 
         Cookies.set("token", data.token, {
@@ -31,11 +25,11 @@ export async function login(Username: string, Password: string): Promise<LoginRe
             sameSite: "Strict", // Protección contra CSRF
         });
 
-        return data;
+        return true;
 
     } catch (error) {
-        console.error("Error sending data:", error);
-        alert("Error connecting to the server");
+        // console.error(error);
+        // alert("Error connecting to the server");
         throw error; // Throw the error to be handled by the code above
     }
 }
